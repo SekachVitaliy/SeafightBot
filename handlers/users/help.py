@@ -9,6 +9,9 @@ from loader import dp
 @rate_limit(limit=1)
 @dp.message_handler(CommandHelp(), IsPrivate())
 async def bot_help(message: types.Message):
+    """
+    Хендлер куда попадает команда '/help' и выводит список доступных команд
+    """
     text = ("Список команд: ",
             "/start - Начать диалог",
             "/help - Получить справку")

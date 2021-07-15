@@ -12,24 +12,33 @@ from loader import dp
 @rate_limit(limit=1)
 @dp.message_handler(IsPrivate(), text="map")
 async def show_map(message: types.Message):
-    # red_circle = '🔴'
-    # blue_circle = '🔵'
-    # cross = '❌'
-    # n = 10
-    # out = 'Карта врага:\n'
-    # arr = generate_enemy_ships()
-    # for line in arr:
-    #     for i in range(0, n):
-    #         if line[i] >= 1:
-    #             out += cross
-    #         else:
-    #             out += blue_circle
-    #     out += '\n'
-    paint_image(message.chat.id)
+    """
+    Ловит сообщение 'map' и генериурет поле и отссылает изображение поля и клавиатуру
+    """
+    """
+    Стаарый вывод поля с кораблями
+    red_circle = '🔴'
+    blue_circle = '🔵'
+    cross = '❌'
+    n = 10
+    out = 'Карта врага:\n'
+    arr = generate_enemy_ships()
+    for line in arr:
+        for i in range(0, n):
+            if line[i] >= 1:
+                out += cross
+            else:
+                out += blue_circle
+        out += '\n'
+    """
+    draw_field(message.chat.id)
     await message.answer_photo(InputFile(f'{message.chat.id}.jpg'), reply_markup=default_field)
 
 
 def generate_enemy_ships():
+    """
+    Функция генерации массива кораблей
+    """
     enemy_ships = [[]]
     ships_list = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
     sum_all_ships = sum(ships_list)
@@ -95,27 +104,38 @@ def generate_enemy_ships():
     return enemy_ships
 
 
-def paint_image(chat_id):
+def draw_field(chat_id):
+    """
+    Эта функция генерирует изображения поля 500х500
+    """
     photo_height = 500
     photo_width = 500
-    quantity = 10  # кількість клітинок по вертикалі і горизонталі
-    step = photo_height // quantity  # крок по горизонталі
+    quantity = 10
+    step = photo_height // quantity
     img = Image.new('RGB', (photo_width, photo_height), 'blue')
     draw = ImageDraw.Draw(img)
     arr = generate_enemy_ships()
     for i in range(0, quantity):
         for j in range(0, quantity):
             if arr[i][j] > 0:
+                # зарисовуем клеточки, где находятся корабли
                 draw.rectangle((j * step + 2, i * step + 2, j * step + 48, i * step + 48), fill='white')
     for i in range(0, quantity):
+        # рисуем поле черными линиями
         draw.line((step * i, 0, step * i, photo_height), fill='black', width=2)
         draw.line((0, step * i, photo_width, step * i), fill='black', width=2)
+    # сохраняем изображние по имени id в телеграм
     img.save(f'{chat_id}.jpg', quality=95)
 
 
 def change_image(i, j, chat_id):
+    """
+    Функция закрашивает клеточку куда стреляли
+    """
     step = 50
     img = Image.open(f'{chat_id}.jpg')
     draw = ImageDraw.Draw(img)
+    # 48 потому что бы не залазило на черные линии
     draw.rectangle((j * step + 2, i * step + 2, j * step + 48, i * step + 48), fill='red')
+    # сохраняем изображние по имени id в телеграм
     img.save(f'{chat_id}.jpg', quality=95)
