@@ -44,7 +44,9 @@ class Database:
         full_name VARCHAR(255) NOT NULL,
         username VARCHAR(255) NULL,
         telegram_id BIGINT NOT NULL UNIQUE,
-        balance INT NOT NULL DEFAULT 0
+        balance INT NOT NULL DEFAULT 0,
+        ships INT[][],
+        shots INT[][]
         );
         """
         await self.execute(sql, execute=True)
@@ -94,3 +96,36 @@ class Database:
 
     async def drop_table_users(self):
         return await self.execute("DROP TABLE Users", execute=True)
+
+    """
+    Работа с массивом кораблей
+    """
+
+    async def fill_ships_arr(self, array, telegram_id):
+        sql = f" UPDATE Users SET ships = ARRAY{array}WHERE telegram_id=$1;"
+        return await self.execute(sql, telegram_id, execute=True)
+
+    async def fill_ships_cell(self, i, j, value, telegram_id):
+        return await self.execute(f"UPDATE Users SET ships[{i+1}][{j+1}] = {value} WHERE telegram_id={telegram_id};",
+                                  execute=True)
+
+    async def get_ships_arr(self, telegram_id):
+        sql = "SELECT ships FROM Users WHERE telegram_id=$1"
+        return await self.execute(sql, telegram_id, fetchval=True)
+
+    """
+    Работа с массивом выстрелов
+    """
+
+    async def fill_shots_arr(self, telegram_id):
+        array = [[-1 for i in range(10)] for i in range(10)]
+        sql = f" UPDATE Users SET shots = ARRAY{array}WHERE telegram_id=$1;"
+        return await self.execute(sql, telegram_id, execute=True)
+
+    async def fill_shots_cell(self, i, j, value, telegram_id):
+        return await self.execute(f"UPDATE Users SET shots[{i+1}][{j+1}] = {value} WHERE telegram_id={telegram_id};",
+                                  execute=True)
+
+    async def get_shots_arr(self, telegram_id):
+        sql = "SELECT shots FROM Users WHERE telegram_id=$1"
+        return await self.execute(sql, telegram_id, fetchval=True)

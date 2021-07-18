@@ -4,9 +4,9 @@ from PIL import Image, ImageDraw
 from aiogram.types import InputFile
 
 from filters import IsPrivate
-from keyboards.default.default_field_keyboard import default_field
+from keyboards.default.default_field_keyboard import get_default_keyboard
 from utils.misc import rate_limit
-from loader import dp
+from loader import dp, db
 
 
 @rate_limit(limit=1)
@@ -31,13 +31,21 @@ async def show_map(message: types.Message):
                 out += blue_circle
         out += '\n'
     """
-    draw_field(message.chat.id)
-    await message.answer_photo(InputFile(f'{message.chat.id}.jpg'), reply_markup=default_field)
+    arr = generate_enemy_ships()
+    # записываем сгенерируемый массив кораблей в базу данных
+    await db.fill_ships_arr(arr, telegram_id=message.from_user.id)
+    # генерируем массив выстрелов в базе данных( -1 для всех, что значит что мы еще не стреляли туда)
+    await db.fill_shots_arr(telegram_id=message.from_user.id)
+    # рисуем изображение поля
+    draw_field(arr, message.from_user.id)
+    # получаем массив выстрелов и передаем его в клавиатуру
+    shots = await db.get_shots_arr(message.from_user.id)
+    await message.answer_photo(InputFile(f'{message.chat.id}.jpg'), reply_markup=get_default_keyboard(shots))
 
 
 def generate_enemy_ships():
     """
-    Функция генерации массива кораблей
+    Функция генерации массива кораблей, возращает массив кораблей [10][10]
     """
     enemy_ships = [[]]
     ships_list = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
@@ -101,10 +109,10 @@ def generate_enemy_ships():
             for j in range(0, quantity_y):
                 if enemy_ships[j][i] > 0:
                     sum_all_enemy = sum_all_enemy + 1
-    return enemy_ships
+    return enemy_ships[:10][:10]
 
 
-def draw_field(chat_id):
+def draw_field(arr, chat_id):
     """
     Эта функция генерирует изображения поля 500х500
     """
@@ -114,7 +122,6 @@ def draw_field(chat_id):
     step = photo_height // quantity
     img = Image.new('RGB', (photo_width, photo_height), 'blue')
     draw = ImageDraw.Draw(img)
-    arr = generate_enemy_ships()
     for i in range(0, quantity):
         for j in range(0, quantity):
             if arr[i][j] > 0:

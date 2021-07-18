@@ -1,8 +1,8 @@
 from aiogram import types
 
 from filters import IsPrivate, InField
-from keyboards.default.default_field_keyboard import default_field
-from loader import dp
+from keyboards.default.default_field_keyboard import get_default_keyboard
+from loader import dp, db
 from utils.misc import rate_limit
 from .map import change_image
 
@@ -15,5 +15,12 @@ async def parsing_the_keyboard(message: types.Message):
     Отрисовывает поле куда стреляли и отправляет изображение обратно с клавиатурой
     """
     alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
-    change_image(int(alphabet.index(message.text[0])), int(message.text[1]), message.chat.id)
-    await message.answer_photo(types.InputFile(f'{message.chat.id}.jpg'), reply_markup=default_field)
+    i = int(alphabet.index(message.text[0]))
+    j = int(message.text[1])
+    # Зарисовуем поле, куда стреляли
+    change_image(i, j, message.from_user.id)
+    # Записываем  данные в ячейку БД, куда стреляли
+    await db.fill_shots_cell(i, j, 1, message.from_user.id)
+    # Получаем массив выстрелов, что бы передать в клавиатуру
+    arr = await db.get_shots_arr(message.from_user.id)
+    await message.answer_photo(types.InputFile(f'{message.chat.id}.jpg'), reply_markup=get_default_keyboard(arr))

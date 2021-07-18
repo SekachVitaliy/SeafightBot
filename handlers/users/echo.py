@@ -10,8 +10,8 @@ from utils.misc import rate_limit
 @dp.message_handler(IsPrivate(), state=None)
 async def bot_echo(message: types.Message):
     """
-    Эхо хендлер, куда летят ВСЕ сообщения с указанным состоянием
-    Чисто для проверки использовался
+    Эхо хендлер, куда летят ВСЕ сообщения без состояния
+    Использовался для проверки
     """
     await message.answer(f"Эхо без состояния."
                          f"Сообщение:\n"
@@ -23,7 +23,7 @@ async def bot_echo(message: types.Message):
 async def bot_echo_all(message: types.Message, state: FSMContext):
     """
     Эхо хендлер, куда летят ВСЕ сообщения с указанным состоянием
-    Чисто для проверки использовался
+    Использовался для проверки
     """
     state = await state.get_state()
     await message.answer(f"Эхо в состоянии <code>{state}</code>.\n"

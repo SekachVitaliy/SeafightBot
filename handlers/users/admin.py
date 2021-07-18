@@ -12,4 +12,4 @@ async def admin_chat(message: types.Message):
     """
     Хендлер работает по слову 'admin' в чат. Можно будет прикрипить количество людей, сыгранных игр и тд.
     """
-    await message.answer(f"Ты вызвал админку!Количество пользователей{await db.count_users()}")
+    await message.answer(f"Ты вызвал админку!\nКоличество пользователей: {await db.count_users()}")
