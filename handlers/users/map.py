@@ -5,12 +5,13 @@ from aiogram.types import InputFile
 
 from filters import IsPrivate
 from keyboards.default.default_field_keyboard import get_default_keyboard
+from states import Game
 from utils.misc import rate_limit
 from loader import dp, db
 
 
 @rate_limit(limit=1)
-@dp.message_handler(IsPrivate(), text="map")
+@dp.message_handler(IsPrivate(), text="Игра началась!", state=Game.game)
 async def show_map(message: types.Message):
     """
     Ловит сообщение 'map' и генериурет поле и отссылает изображение поля и клавиатуру

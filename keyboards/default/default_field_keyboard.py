@@ -6,7 +6,7 @@ def get_default_keyboard(arr):
     Получаем массив выстрелов и проверяем (попали, не попали, убили)
     и в зависимости от этого ставим разные кнопки.
     """
-    default_field = ReplyKeyboardMarkup(row_width=10, resize_keyboard=True)
+    default_field = ReplyKeyboardMarkup(row_width=10)
 
     alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
 

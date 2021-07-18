@@ -3,12 +3,11 @@ from aiogram import types
 from filters import IsPrivate, InField
 from keyboards.default.default_field_keyboard import get_default_keyboard
 from loader import dp, db
-from utils.misc import rate_limit
 from .map import change_image
+from states.game import Game
 
 
-@rate_limit(limit=1)
-@dp.message_handler(IsPrivate(), InField())
+@dp.message_handler(IsPrivate(), InField(), state=Game.game)
 async def parsing_the_keyboard(message: types.Message):
     """
     Хендлер срабатвает по кнопке с клавиатуры. Фильтр InField пропускает только кнопки с клавиатуры.
