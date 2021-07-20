@@ -62,6 +62,7 @@ async def bot_start(message: types.Message):
     await message.answer(text, reply_markup=inline_start_keyboard)
 
 
+@rate_limit(limit=1)
 @dp.callback_query_handler(text="paid")
 async def paid_game(call: CallbackQuery):
     # убираем часиви возле кнопки
@@ -83,6 +84,7 @@ async def paid_game(call: CallbackQuery):
     await call.message.answer_photo(InputFile(f'{call.message.chat.id}.jpg'), reply_markup=get_default_keyboard(shots))
 
 
+@rate_limit(limit=1)
 @dp.callback_query_handler(text="free")
 async def paid_game(call: CallbackQuery):
     # убираем часиви
