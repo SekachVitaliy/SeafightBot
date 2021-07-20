@@ -3,7 +3,7 @@ from aiogram import types
 from filters import IsPrivate, InField
 from keyboards.default.default_field_keyboard import get_default_keyboard
 from loader import dp, db
-from .map import change_image
+from .start import change_image
 from states.game import Game
 
 

@@ -52,7 +52,7 @@ async def bot_start(message: types.Message):
             username=message.from_user.username,
             telegram_id=message.from_user.id
         )
-        logging.info(f"Добавлен новый пользователь: Fullname={user[1]}, username={user[2]}, telegram_id={user[3]}"
+        logging.info(f"Добавлен новый пользователь: Fullname={user[1]}, username={user[2]}, telegram_id={user[3]}, "
                      f"balance={user[4]}, количество:{await db.count_users()}")
     except UniqueViolationError:
         # Если пользователь уже есть в БД
