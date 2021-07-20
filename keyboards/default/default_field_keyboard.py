@@ -18,6 +18,6 @@ def get_default_keyboard(arr):
                 buttons.append(KeyboardButton(text="❌"))
             else:
                 buttons.append(KeyboardButton(text="🔴"))
-        default_field.add(buttons[1], buttons[2], buttons[3], buttons[4], buttons[5], buttons[6], buttons[7],
+        default_field.add(buttons[0], buttons[1], buttons[2], buttons[3], buttons[4], buttons[5], buttons[6], buttons[7],
                           buttons[8], buttons[9])
     return default_field
