@@ -16,6 +16,14 @@ from aiogram.types import InputFile
 
 from loader import dp, db
 
+click = 35
+ship_5 = 0
+ship_6 = 0
+ship_7 = 0
+ship_8 = 0
+ship_9 = 0
+ship_10 = 0
+
 
 @rate_limit(limit=1)
 @dp.message_handler(CommandStart(deep_link="reklama"), IsPrivate())
@@ -72,15 +80,14 @@ async def paid_game(call: CallbackQuery):
     await call.message.answer("Игра началась! Подожди немного)")
     # устаналиваем состояние
     await Game.game.set()
-    arr = generate_enemy_ships()
+    ships = generate_enemy_ships()
     # записываем сгенерируемый массив кораблей в базу данных
-    await db.fill_ships_arr(arr, telegram_id=call.message.chat.id)
+    await db.fill_ships_arr(ships, telegram_id=call.message.chat.id)
+    shots = [[-1 for _ in range(10)] for _ in range(10)]
     # генерируем массив выстрелов в базе данных( -1 для всех, что значит что мы еще не стреляли туда)
-    await db.fill_shots_arr(telegram_id=call.message.chat.id)
+    await db.fill_shots_arr(shots, telegram_id=call.message.chat.id)
     # рисуем изображение поля
-    draw_field(arr, call.message.chat.id)
-    # получаем массив выстрелов и передаем его в клавиатуру
-    shots = await db.get_shots_arr(call.message.chat.id)
+    draw_field(ships, call.message.chat.id)
     await call.message.answer_photo(InputFile(f'{call.message.chat.id}.jpg'), reply_markup=get_default_keyboard(shots))
 
 
@@ -94,15 +101,14 @@ async def paid_game(call: CallbackQuery):
     await call.message.answer("Игра началась! Подожди немного)")
     # устаналиваем состояние
     await Game.game.set()
-    arr = generate_enemy_ships()
+    ships = generate_enemy_ships()
     # записываем сгенерируемый массив кораблей в базу данных
-    await db.fill_ships_arr(arr, telegram_id=call.message.chat.id)
+    await db.fill_ships_arr(ships, telegram_id=call.message.chat.id)
+    shots = [[-1 for _ in range(11)] for _ in range(11)]
     # генерируем массив выстрелов в базе данных( -1 для всех, что значит что мы еще не стреляли туда)
-    await db.fill_shots_arr(telegram_id=call.message.chat.id)
+    await db.fill_shots_arr(shots, telegram_id=call.message.chat.id)
     # рисуем изображение поля
-    draw_field(arr, call.message.chat.id)
-    # получаем массив выстрелов и передаем его в клавиатуру
-    shots = await db.get_shots_arr(call.message.chat.id)
+    draw_field(ships, call.message.chat.id)
     await call.message.answer_photo(InputFile(f'{call.message.chat.id}.jpg'), reply_markup=get_default_keyboard(shots))
 
 
@@ -110,11 +116,12 @@ def generate_enemy_ships():
     """
     Функция генерации массива кораблей, возращает массив кораблей [10][10]
     """
-    enemy_ships = [[]]
+    quantity_x = quantity_y = 10  # кількість клітинок по вертикалі і горизонталі
+    enemy_ships = [[0 for _ in range(quantity_x + 1)] for _ in range(quantity_y + 1)]
     ships_list = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4]
     sum_all_ships = sum(ships_list)
     sum_all_enemy = 0
-    quantity_x, quantity_y = 10, 10
+
     while sum_all_enemy != sum_all_ships:
         # обнуляю масив кораблів
         enemy_ships = [[0 for _ in range(quantity_x + 1)] for _ in
@@ -172,10 +179,10 @@ def generate_enemy_ships():
             for j in range(0, quantity_y):
                 if enemy_ships[j][i] > 0:
                     sum_all_enemy = sum_all_enemy + 1
-    return enemy_ships[:10][:10]
+    return enemy_ships[:11][:11]
 
 
-def draw_field(arr, chat_id):
+def draw_field(ships, chat_id):
     """
     Эта функция генерирует изображения поля 500х500
     """
@@ -183,13 +190,13 @@ def draw_field(arr, chat_id):
     photo_width = 500
     quantity = 10
     step = photo_height // quantity
-    img = Image.new('RGB', (photo_width, photo_height), 'blue')
+    img = Image.new('RGB', (photo_width, photo_height), 'white')
     draw = ImageDraw.Draw(img)
     for i in range(0, quantity):
         for j in range(0, quantity):
-            if arr[i][j] > 0:
+            if ships[j][i] > 0:
                 # зарисовуем клеточки, где находятся корабли
-                draw.rectangle((j * step + 2, i * step + 2, j * step + 48, i * step + 48), fill='white')
+                draw.rectangle((i * step + 2, j * step + 2, i * step + step, j * step + step), fill='violet')
     for i in range(0, quantity):
         # рисуем поле черными линиями
         draw.line((step * i, 0, step * i, photo_height), fill='black', width=2)
@@ -198,7 +205,21 @@ def draw_field(arr, chat_id):
     img.save(f'{chat_id}.jpg', quality=95)
 
 
-def change_image(i, j, chat_id):
+def draw_lines(chat_id):
+    photo_height = 500
+    photo_width = 500
+    quantity = 10
+    step = photo_height // quantity
+    img = Image.open(f'{chat_id}.jpg')
+    draw = ImageDraw.Draw(img)
+    for i in range(0, 10):
+        # рисуем поле черными линиями
+        draw.line((50 * i, 0, step * i, photo_height), fill='black', width=2)
+        draw.line((0, 50 * i, photo_width, step * i), fill='black', width=2)
+    img.save(f'{chat_id}.jpg', quality=95)
+
+
+def change_image(i, j, ships, shot_field, chat_id):
     """
     Функция закрашивает клеточку куда стреляли
     """
@@ -206,6 +227,267 @@ def change_image(i, j, chat_id):
     img = Image.open(f'{chat_id}.jpg')
     draw = ImageDraw.Draw(img)
     # 48 потому что бы не залазило на черные линии
-    draw.rectangle((j * step + 2, i * step + 2, j * step + 48, i * step + 48), fill='red')
+    global click
+    global ship_5
+    global ship_6
+    global ship_7
+    global ship_8
+    global ship_9
+    global ship_10
+    click = click - 1
+    if ships[i][j] > 0:
+        color = "red"
+        draw.rectangle((j * step, i * step, j * step + step, i * step + step), fill=color)
+        if ships[i][j] == 1 or ships[i][j] == 2 or ships[i][j] == 3 or ships[i][j] == 4:
+            shot_field[i + 1][j - 1] = 1
+            shot_field[i + 1][j] = 1
+            shot_field[i + 1][j + 1] = 1
+            shot_field[i][j - 1] = 1
+            shot_field[i][j + 1] = 1
+            shot_field[i - 1][j - 1] = 1
+            shot_field[i - 1][j] = 1
+            shot_field[i - 1][j + 1] = 1
+            draw.rectangle((j * step, i * step, j * step + step, i * step + step), fill="green")
+            color = "blue"
+            if j < 9:
+                draw.rectangle((j * step - step, i * step - step, j * step - step + step,
+                                i * step - step + step), fill=color)
+                draw.rectangle((j * step - step, i * step, j * step - step + step,
+                                i * step + step), fill=color)
+                draw.rectangle((j * step - step, i * step + step, j * step - step + step,
+                                i * step + step + step), fill=color)
+                draw.rectangle((j * step, i * step - step, j * step + step,
+                                i * step - step + step), fill=color)
+                draw.rectangle((j * step, i * step + step, j * step + step,
+                                i * step + step + step), fill=color)
+                draw.rectangle((j * step + step, i * step - step, j * step + step + step,
+                                i * step - step + step), fill=color)
+                draw.rectangle((j * step + step, i * step, j * step + step + step,
+                                i * step + step), fill=color)
+                draw.rectangle((j * step + step, i * step + step, j * step + step + step,
+                                i * step + step + step), fill=color)
+            else:
+                draw.rectangle((j * step - step, i * step - step, j * step - step + step,
+                                i * step - step + step), fill=color)
+                draw.rectangle((j * step - step, i * step, j * step - step + step,
+                                i * step + step), fill=color)
+                draw.rectangle((j * step - step, i * step + step, j * step - step + step,
+                                i * step + step + step), fill=color)
+                draw.rectangle((j * step, i * step - step, j * step + step,
+                                i * step - step + step), fill=color)
+                draw.rectangle((j * step, i * step + step, j * step + step,
+                                i * step + step + step), fill=color)
+        if ships[i][j] == 5:
+            ship_5 = ship_5 + 1
+        elif ships[i][j] == 6:
+            ship_6 = ship_6 + 1
+        elif ships[i][j] == 7:
+            ship_7 = ship_7 + 1
+        elif ships[i][j] == 8:
+            ship_8 = ship_8 + 1
+        elif ships[i][j] == 9:
+            ship_9 = ship_9 + 1
+        elif ships[i][j] == 10:
+            ship_10 = ship_10 + 1
     # сохраняем изображние по имени id в телеграм
     img.save(f'{chat_id}.jpg', quality=95)
+    shot_field = ship_kill(i, j, ships, shot_field, chat_id)
+    if ships[i][j] == 0:
+        color = "blue"
+        draw.rectangle((j * step, i * step, j * step + step, i * step + step), fill=color)
+        img.save(f'{chat_id}.jpg', quality=95)
+    return shot_field
+
+
+def miss(x, y, ships, shot_field, draw):
+    """
+    Функция закрашует точки вокруг корабля, если он полностю уничтожен
+    """
+    step = 50
+    color = "blue"
+    if ships[x][y + 1] > 4 and ships[x][y - 1] > 4 and ships[x][y] != 0:  # по горизонтале
+        shot_field[x + 1][y] = 1
+        shot_field[x - 1][y] = 1
+        draw.rectangle((y * step, x * step - step, y * step + step,
+                        x * step - step + step), fill=color)
+        draw.rectangle((y * step, x * step + step, y * step + step,
+                        x * step + step + step), fill=color)
+    else:
+        if ships[x][y] > 4 and ships[x][y + 1] > 4 and ships[x][y - 1] == 0:
+            shot_field[x + 1][y - 1] = 1
+            shot_field[x + 1][y] = 1
+            shot_field[x][y - 1] = 1
+            shot_field[x - 1][y - 1] = 1
+            shot_field[x - 1][y] = 1
+            draw.rectangle((y * step - step, x * step - step, y * step - step + step,
+                            x * step - step + step), fill=color)
+            draw.rectangle((y * step - step, x * step, y * step - step + step,
+                            x * step + step), fill=color)
+            draw.rectangle((y * step - step, x * step + step, y * step - step + step,
+                            x * step + step + step), fill=color)
+            draw.rectangle((y * step, x * step - step, y * step + step,
+                            x * step - step + step), fill=color)
+            draw.rectangle((y * step, x * step + step, y * step + step,
+                            x * step + step + step), fill=color)
+        else:
+            if y < 9:
+                if ships[x][y] > 4 and ships[x][y - 1] > 4 and ships[x][y + 1] == 0:
+                    shot_field[x + 1][y] = 1
+                    shot_field[x + 1][y + 1] = 1
+                    shot_field[x][y + 1] = 1
+                    shot_field[x - 1][y] = 1
+                    shot_field[x - 1][y + 1] = 1
+                    draw.rectangle((y * step, x * step - step, y * step + step,
+                                    x * step - step + step), fill=color)
+                    draw.rectangle((y * step, x * step + step, y * step + step,
+                                    x * step + step + step), fill=color)
+                    draw.rectangle((y * step + step, x * step - step, y * step + step + step,
+                                    x * step - step + step), fill=color)
+                    draw.rectangle((y * step + step, x * step, y * step + step + step,
+                                    x * step + step), fill=color)
+                    draw.rectangle((y * step + step, x * step + step, y * step + step + step,
+                                    x * step + step + step), fill=color)
+            else:
+                if ships[x][y] > 4:
+                    shot_field[x + 1][y] = 1
+                    shot_field[x - 1][y] = 1
+                    draw.rectangle((y * step, x * step - step, y * step + step,
+                                    x * step - step + step), fill=color)
+                    draw.rectangle((y * step, x * step + step, y * step + step,
+                                    x * step + step + step), fill=color)
+    if y < 9:
+        if ships[x + 1][y] > 4 and ships[x - 1][y] > 4 and ships[x][y] != 0:  # по вертикали
+            shot_field[x][y - 1] = 1
+            shot_field[x][y + 1] = 1
+            draw.rectangle((y * step - step, x * step, y * step - step + step,
+                            x * step + step), fill=color)
+            draw.rectangle((y * step + step, x * step, y * step + step + step,
+                            x * step + step), fill=color)
+        else:
+            if ships[x][y] > 4 and ships[x + 1][y] > 4 and ships[x - 1][y] == 0:
+                shot_field[x][y - 1] = 1
+                shot_field[x][y + 1] = 1
+                shot_field[x - 1][y - 1] = 1
+                shot_field[x - 1][y] = 1
+                shot_field[x - 1][y + 1] = 1
+                draw.rectangle((y * step - step, x * step - step, y * step - step + step,
+                                x * step - step + step), fill=color)
+                draw.rectangle((y * step - step, x * step, y * step - step + step,
+                                x * step + step), fill=color)
+                draw.rectangle((y * step, x * step - step, y * step + step,
+                                x * step - step + step), fill=color)
+                draw.rectangle((y * step + step, x * step - step, y * step + step + step,
+                                x * step - step + step), fill=color)
+                draw.rectangle((y * step + step, x * step, y * step + step + step,
+                                x * step + step), fill=color)
+            else:
+                if ships[x][y] > 4 and ships[x - 1][y] > 4 and ships[x + 1][y] == 0:
+                    shot_field[x + 1][y - 1] = 1
+                    shot_field[x + 1][y] = 1
+                    shot_field[x + 1][y + 1] = 1
+                    shot_field[x][y - 1] = 1
+                    shot_field[x][y + 1] = 1
+                    draw.rectangle((y * step - step, x * step, y * step - step + step,
+                                    x * step + step), fill=color)
+                    draw.rectangle((y * step - step, x * step + step, y * step - step + step,
+                                    x * step + step + step), fill=color)
+                    draw.rectangle((y * step, x * step + step, y * step + step,
+                                    x * step + step + step), fill=color)
+                    draw.rectangle((y * step + step, x * step, y * step + step + step,
+                                    x * step + step), fill=color)
+                    draw.rectangle((y * step + step, x * step + step, y * step + step + step,
+                                    x * step + step + step), fill=color)
+    else:
+        if ships[x + 1][y] > 4 and ships[x - 1][y] > 4 and ships[x][y] != 0:
+            shot_field[x][y - 1] = 1
+            draw.rectangle((y * step - step, x * step, y * step - step + step,
+                            x * step + step), fill=color)
+        else:
+            if ships[x][y] > 4 and ships[x + 1][y] > 4 and ships[x - 1][y] == 0:
+                shot_field[x][y - 1] = 1
+                shot_field[x - 1][y - 1] = 1
+                shot_field[x - 1][y] = 1
+                draw.rectangle((y * step - step, x * step - step, y * step - step + step,
+                                x * step - step + step), fill=color)
+                draw.rectangle((y * step - step, x * step, y * step - step + step,
+                                x * step + step), fill=color)
+                draw.rectangle((y * step, x * step - step, y * step + step,
+                                x * step - step + step), fill=color)
+            else:
+                if ships[x][y] > 4 and ships[x - 1][y] > 4 and ships[x + 1][y] == 0:
+                    shot_field[x + 1][y - 1] = 1
+                    shot_field[x + 1][y] = 1
+                    shot_field[x][y - 1] = 1
+                    draw.rectangle((y * step - step, x * step, y * step - step + step,
+                                    x * step + step), fill=color)
+                    draw.rectangle((y * step - step, x * step + step, y * step - step + step,
+                                    x * step + step + step), fill=color)
+                    draw.rectangle((y * step, x * step + step, y * step + step,
+                                    x * step + step + step), fill=color)
+    return draw, shot_field
+
+
+def ship_kill(i, j, ships, shot_field, chat_id):
+    """
+    Функция меняет цвет корабля, если он полностю уничтожен
+    """
+    step = 50
+    img = Image.open(f'{chat_id}.jpg')
+    draw = ImageDraw.Draw(img)
+    global ship_5
+    global ship_6
+    global ship_7
+    global ship_8
+    global ship_9
+    global ship_10
+    color = "green"
+    if ship_5 == 2:
+        for i in range(0, 10):
+            for j in range(0, 10):
+                if ships[i][j] == 5:
+                    draw.rectangle((j * step, i * step, j * step + step,
+                                    i * step + step), fill=color)
+                    ship_5 = 0
+                    draw, shot_field = miss(i, j, ships, shot_field, draw)
+    elif ship_6 == 2:
+        for i in range(0, 10):
+            for j in range(0, 10):
+                if ships[i][j] == 6:
+                    draw.rectangle((j * step, i * step, j * step + step,
+                                    i * step + step), fill=color)
+                    ship_6 = 0
+                    draw, shot_field = miss(i, j, ships, shot_field, draw)
+    elif ship_7 == 2:
+        for i in range(0, 10):
+            for j in range(0, 10):
+                if ships[i][j] == 7:
+                    draw.rectangle((j * step, i * step, j * step + step,
+                                    i * step + step), fill=color)
+                    ship_7 = 0
+                    draw, shot_field = miss(i, j, ships, shot_field, draw)
+    elif ship_8 == 3:
+        for i in range(0, 10):
+            for j in range(0, 10):
+                if ships[i][j] == 8:
+                    draw.rectangle((j * step, i * step, j * step + step,
+                                    i * step + step), fill=color)
+                    ship_8 = 0
+                    draw, shot_field = miss(i, j, ships, shot_field, draw)
+    elif ship_9 == 3:
+        for i in range(0, 10):
+            for j in range(0, 10):
+                if ships[i][j] == 9:
+                    draw.rectangle((j * step, i * step, j * step + step,
+                                    i * step + step), fill=color)
+                    ship_9 = 0
+                    draw, shot_field = miss(i, j, ships, shot_field, draw)
+    elif ship_10 == 4:
+        for i in range(0, 10):
+            for j in range(0, 10):
+                if ships[i][j] == 10:
+                    draw.rectangle((j * step, i * step, j * step + step,
+                                    i * step + step), fill=color)
+                    ship_10 = 0
+                    draw, shot_field = miss(i, j, ships, shot_field, draw)
+    img.save(f'{chat_id}.jpg', quality=95)
+    return shot_field

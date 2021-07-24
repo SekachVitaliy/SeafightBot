@@ -117,8 +117,7 @@ class Database:
     Работа с массивом выстрелов
     """
 
-    async def fill_shots_arr(self, telegram_id):
-        array = [[-1 for i in range(10)] for i in range(10)]
+    async def fill_shots_arr(self, array, telegram_id):
         sql = f" UPDATE Users SET shots = ARRAY{array}WHERE telegram_id=$1;"
         return await self.execute(sql, telegram_id, execute=True)
 
