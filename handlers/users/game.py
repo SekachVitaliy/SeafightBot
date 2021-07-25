@@ -61,5 +61,7 @@ async def parsing_the_keyboard(message: types.Message):
         draw_lines(message.chat.id)
         await message.answer_photo(types.InputFile(f'{message.chat.id}.jpg'), reply_markup=get_default_keyboard(shots))
     else:
+        draw_lines(message.chat.id)
+        await message.answer_photo(types.InputFile(f'{message.chat.id}.jpg'))
         await message.answer("Ты победил)) Прими мои поздравления!!!!")
         await message.answer("Давай сыграем еще разок ?)", reply_markup=inline_start_keyboard)
