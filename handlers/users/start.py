@@ -87,7 +87,7 @@ async def paid_game(call: CallbackQuery):
     # генерируем массив выстрелов в базе данных( -1 для всех, что значит что мы еще не стреляли туда)
     await db.fill_shots_arr(shots, telegram_id=call.message.chat.id)
     # рисуем изображение поля
-    draw_field(ships, call.message.chat.id)
+    draw_field(call.message.chat.id)
     await call.message.answer_photo(InputFile(f'{call.message.chat.id}.jpg'), reply_markup=get_default_keyboard(shots))
 
 
@@ -108,7 +108,7 @@ async def paid_game(call: CallbackQuery):
     # генерируем массив выстрелов в базе данных( -1 для всех, что значит что мы еще не стреляли туда)
     await db.fill_shots_arr(shots, telegram_id=call.message.chat.id)
     # рисуем изображение поля
-    draw_field(ships, call.message.chat.id)
+    draw_field(call.message.chat.id)
     await call.message.answer_photo(InputFile(f'{call.message.chat.id}.jpg'), reply_markup=get_default_keyboard(shots))
 
 
@@ -182,7 +182,7 @@ def generate_enemy_ships():
     return enemy_ships[:11][:11]
 
 
-def draw_field(ships, chat_id):
+def draw_field(chat_id):
     """
     Эта функция генерирует изображения поля 500х500
     """
@@ -192,11 +192,6 @@ def draw_field(ships, chat_id):
     step = photo_height // quantity
     img = Image.new('RGB', (photo_width, photo_height), 'white')
     draw = ImageDraw.Draw(img)
-    for i in range(0, quantity):
-        for j in range(0, quantity):
-            if ships[j][i] > 0:
-                # зарисовуем клеточки, где находятся корабли
-                draw.rectangle((i * step + 2, j * step + 2, i * step + step, j * step + step), fill='violet')
     for i in range(0, quantity):
         # рисуем поле черными линиями
         draw.line((step * i, 0, step * i, photo_height), fill='black', width=2)
@@ -214,8 +209,8 @@ def draw_lines(chat_id):
     draw = ImageDraw.Draw(img)
     for i in range(0, 10):
         # рисуем поле черными линиями
-        draw.line((50 * i, 0, step * i, photo_height), fill='black', width=2)
-        draw.line((0, 50 * i, photo_width, step * i), fill='black', width=2)
+        draw.line((step * i, 0, step * i, photo_height), fill='black', width=2)
+        draw.line((0, step * i, photo_width, step * i), fill='black', width=2)
     img.save(f'{chat_id}.jpg', quality=95)
 
 
