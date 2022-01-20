@@ -46,7 +46,9 @@ class Database:
         telegram_id BIGINT NOT NULL UNIQUE,
         balance INT NOT NULL DEFAULT 0,
         ships INT[][],
-        shots INT[][]
+        shots INT[][],
+        ship INT[],
+        click INT
         );
         """
         await self.execute(sql, execute=True)
@@ -127,4 +129,36 @@ class Database:
 
     async def get_shots_arr(self, telegram_id):
         sql = "SELECT shots FROM Users WHERE telegram_id=$1"
+        return await self.execute(sql, telegram_id, fetchval=True)
+
+    """
+    Работа с массивом точних выстрелов
+    """
+
+    async def fill_ship_masiv(self, array, telegram_id):
+        sql = f" UPDATE Users SET ship = ARRAY{array}WHERE telegram_id=$1;"
+        return await self.execute(sql, telegram_id, execute=True)
+
+    async def fill_ship_cell(self, i, value, telegram_id):
+        return await self.execute(f"UPDATE Users SET ship[{i+1}] = {value} WHERE telegram_id={telegram_id};",
+                                  execute=True)
+
+    async def get_ship_masiv(self, telegram_id):
+        sql = "SELECT ship FROM Users WHERE telegram_id=$1"
+        return await self.execute(sql, telegram_id, fetchval=True)
+
+    """
+    Работа с количеством выстрелов
+    """
+
+    async def fill_click(self, number, telegram_id):
+        sql = f" UPDATE Users SET click = {number} WHERE telegram_id=$1;"
+        return await self.execute(sql, telegram_id, execute=True)
+
+    async def fill_click_cell(self, value, telegram_id):
+        return await self.execute(f"UPDATE Users SET click = {value} WHERE telegram_id={telegram_id};",
+                                  execute=True)
+
+    async def get_click(self, telegram_id):
+        sql = "SELECT click FROM Users WHERE telegram_id=$1"
         return await self.execute(sql, telegram_id, fetchval=True)

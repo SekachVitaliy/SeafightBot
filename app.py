@@ -1,4 +1,5 @@
 import logging
+import time
 from aiogram import executor
 
 from loader import dp, db
@@ -10,9 +11,23 @@ from utils.set_bot_commands import set_default_commands
 async def on_startup(dispatcher):
     # Подключаем базу данных
     logging.info("Создаем подключение к базе данных")
-    await db.create_pool()
+    while True:
+        try:
+            await db.create_pool()
+            break
+        except ConnectionRefusedError:
+            logging.info('database connection refused, retrying in 5 seconds...')
+            time.sleep(5)
+    # await db.create_pool()
     logging.info("Создаем таблицу пользователей")
-    await db.create_table_users()
+    while True:
+        try:
+            await db.create_table_users()
+            break
+        except ConnectionRefusedError:
+            logging.info('database connection refused, retrying in 5 seconds...')
+            time.sleep(5)
+    # await db.create_table_users()
     logging.info("Готово")
 
     # Устанавливаем дефолтные команды
