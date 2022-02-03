@@ -23,6 +23,9 @@ async def bot_help(message: types.Message):
 
 @rate_limit(limit=1)
 @dp.message_handler(CommandHelp(), IsPrivate(), state=Game.game)
+@dp.message_handler(CommandHelp(), IsPrivate(), state=Game.pay)
+@dp.message_handler(CommandHelp(), IsPrivate(), state=Game.withdraw)
+@dp.message_handler(CommandHelp(), IsPrivate(), state=Game.not_started)
 async def bot_help(message: types.Message):
     """
     Хендлер куда попадает команда '/help' и выводит список доступных команд

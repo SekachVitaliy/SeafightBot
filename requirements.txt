@@ -1,5 +1,5 @@
 aiogram~=2.12
 environs~=8.0.0
 Pillow~=8.3.1
-asyncpg
+asyncpg~=0.23.0
 aioredis

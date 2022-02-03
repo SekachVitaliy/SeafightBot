@@ -5,6 +5,6 @@ from data import config
 from utils.db_api.postqres import Database
 
 bot = Bot(token=config.BOT_TOKEN, parse_mode=types.ParseMode.HTML)
-storage = RedisStorage2()
+storage = RedisStorage2(host=config.Redis_HOST, port=config.Redis_PORT)
 dp = Dispatcher(bot, storage=storage)
 db = Database()

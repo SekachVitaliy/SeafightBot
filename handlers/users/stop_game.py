@@ -12,10 +12,14 @@ from loader import dp, db
 
 @rate_limit(limit=1)
 @dp.message_handler(Command("stop"), IsPrivate())
+@dp.message_handler(Command("stop"), IsPrivate(), state=Game.not_started)
+@dp.message_handler(Command("stop"), IsPrivate(), state=Game.withdraw)
+@dp.message_handler(Command("stop"), IsPrivate(), state=Game.pay)
 async def bot_start(message: types.Message):
     """
         Хендлер куда попадает команда  stop '/stop'
     """
+    await Game.not_started.set()
     await message.answer("У тебя нет активной игры!\nДавай сыграем ?)", reply_markup=inline_start_keyboard)
 
 
@@ -25,5 +29,5 @@ async def bot_start(message: types.Message, state: FSMContext):
     """
         Хендлер куда попадает команда  stop '/stop'
     """
+    await Game.not_started.set()
     await message.answer("Игра остановлена, сыграем еще ?", reply_markup=inline_start_keyboard)
-    await state.reset_state()
