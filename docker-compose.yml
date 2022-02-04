@@ -29,3 +29,8 @@ services:
     depends_on:
       - db
       - redis
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9

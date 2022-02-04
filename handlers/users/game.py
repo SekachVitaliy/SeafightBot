@@ -73,8 +73,11 @@ async def parsing_the_keyboard(message: types.Message):
     elif click == 0:
         await message.answer_photo(types.InputFile(f'{message.chat.id}.png'))
         await message.answer("Ты проиграл, закончились ходы((")
+<<<<<<< HEAD
         logging.info(f'{message.from_user.username} с id:{message.from_user.id}  проиграл в игре!')
         await Game.not_started.set()
+=======
+>>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
         await message.answer("Давай сыграем еще разок ?)", reply_markup=inline_start_keyboard)
     elif click < 0:
         await message.answer_photo(types.InputFile(f'{message.chat.id}.png'))
@@ -83,4 +86,8 @@ async def parsing_the_keyboard(message: types.Message):
     else:
         text = f"Осталось ходов: {click}! "
         await message.answer(text)
+<<<<<<< HEAD
+=======
+        print("кількість пострілів:", click)
+>>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
         await message.answer_photo(types.InputFile(f'{message.chat.id}.png'), reply_markup=get_default_keyboard(shots))

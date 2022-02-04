@@ -18,7 +18,11 @@ async def on_startup(dispatcher):
         except ConnectionRefusedError:
             logging.info('database connection refused, retrying in 5 seconds...')
             time.sleep(5)
+<<<<<<< HEAD
     await db.drop_table_users()
+=======
+    # await db.create_pool()
+>>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
     logging.info("Создаем таблицу пользователей")
     while True:
         try:
@@ -27,6 +31,10 @@ async def on_startup(dispatcher):
         except ConnectionRefusedError:
             logging.info('database connection refused, retrying in 5 seconds...')
             time.sleep(5)
+<<<<<<< HEAD
+=======
+    # await db.create_table_users()
+>>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
     logging.info("Готово")
 
     # Устанавливаем дефолтные команды
