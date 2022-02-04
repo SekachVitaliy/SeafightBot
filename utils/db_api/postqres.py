@@ -48,12 +48,8 @@ class Database:
         ships INT[][],
         shots INT[][],
         ship INT[],
-<<<<<<< HEAD
         click INT,
         paid_game BOOLEAN DEFAULT FALSE
-=======
-        click INT
->>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
         );
         """
         await self.execute(sql, execute=True)
@@ -167,7 +163,6 @@ class Database:
     async def get_click(self, telegram_id):
         sql = "SELECT click FROM Users WHERE telegram_id=$1"
         return await self.execute(sql, telegram_id, fetchval=True)
-<<<<<<< HEAD
 
     async def get_paid_game(self, telegram_id):
         sql = "SELECT paid_game FROM Users WHERE telegram_id=$1"
@@ -180,5 +175,3 @@ class Database:
     async def reset_paid_game(self, telegram_id):
         sql = f" UPDATE Users SET paid_game = {False} WHERE telegram_id=$1;"
         return await self.execute(sql, telegram_id, fetchval=True)
-=======
->>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
