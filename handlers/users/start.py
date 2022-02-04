@@ -17,12 +17,8 @@ from PIL import Image, ImageDraw
 from aiogram.types import InputFile
 
 from loader import dp, db
-<<<<<<< HEAD
 import base64
 import hashlib
-=======
-
->>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
 
 @rate_limit(limit=1)
 @dp.message_handler(CommandStart(deep_link="reklama"))
@@ -84,7 +80,6 @@ async def paid_game(call: CallbackQuery):
     await call.answer(cache_time=60)
     # удаляем клавиатуру
     await call.message.edit_reply_markup(None)
-<<<<<<< HEAD
     balance = await db.get_balance(telegram_id=call.message.chat.id)
     await call.message.answer(f"Твой баланс: {balance}. Игра стоит 10 грн, сыграем?", reply_markup=inline_paid_keyboard)
 
@@ -194,31 +189,6 @@ async def check_withdraw(message: types.Message):
 
 @rate_limit(limit=1)
 @dp.callback_query_handler(text="free", state=Game.not_started)
-=======
-    await call.message.answer("Игра началась! Подожди немного)")
-    # устаналиваем состояние
-    await Game.game.set()
-    ships = generate_enemy_ships()
-    # записываем сгенерируемый массив кораблей в базу данных
-    await db.fill_ships_arr(ships, telegram_id=call.message.chat.id)
-    click = 40
-    # записываю количество выстрелов в базу данных
-    await db.fill_click(click, telegram_id=call.message.chat.id)
-    masiv_ship = [0, 0, 0, 0, 0, 0]
-    # записываю массив для точных выстрелов по кораблю в базу данных
-    await db.fill_ship_masiv(masiv_ship, telegram_id=call.message.chat.id)
-    shots = [[-1 for _ in range(11)] for _ in range(11)]
-    # генерируем массив выстрелов в базе данных( -1 для всех, что значит что мы еще не стреляли туда)
-    await db.fill_shots_arr(shots, telegram_id=call.message.chat.id)
-    # рисуем изображение поля
-    draw_field(call.message.chat.id)
-    await call.message.answer_photo(InputFile(f'{call.message.chat.id}.png'), reply_markup=get_default_keyboard(shots))
-
-
-@rate_limit(limit=1)
-@dp.callback_query_handler(text="free")
-@dp.callback_query_handler(text="free", state=Game.game)
->>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
 async def paid_game(call: CallbackQuery):
     # убираем часики
     await call.answer(cache_time=60)
@@ -342,10 +312,6 @@ def change_image(i, j, ships, masiv_ship, shot_field, click, chat_id):
 
     click = click - 1
     masiv_ship = accurate_shots(i, j, ships, masiv_ship)
-<<<<<<< HEAD
-=======
-    print("masiv_ship:", masiv_ship)
->>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
     if ships[i][j] > 0:
         color = "red"
         draw.rectangle((j * step + 2, i * step + 2, j * step + step - 1, i * step + step - 1), fill=color)
@@ -401,7 +367,6 @@ def change_image(i, j, ships, masiv_ship, shot_field, click, chat_id):
 def accurate_shots(i, j, ships, masiv_ship):
     if ships[i][j] == 5:
         masiv_ship[0] = masiv_ship[0] + 1
-<<<<<<< HEAD
     elif ships[i][j] == 6:
         masiv_ship[1] = masiv_ship[1] + 1
     elif ships[i][j] == 7:
@@ -412,24 +377,6 @@ def accurate_shots(i, j, ships, masiv_ship):
         masiv_ship[4] = masiv_ship[4] + 1
     elif ships[i][j] == 10:
         masiv_ship[5] = masiv_ship[5] + 1
-=======
-        print("ship 5:", masiv_ship[0])
-    elif ships[i][j] == 6:
-        masiv_ship[1] = masiv_ship[1] + 1
-        print("ship 6:", masiv_ship[1])
-    elif ships[i][j] == 7:
-        masiv_ship[2] = masiv_ship[2] + 1
-        print("ship 7:", masiv_ship[2])
-    elif ships[i][j] == 8:
-        masiv_ship[3] = masiv_ship[3] + 1
-        print("ship 8:", masiv_ship[3])
-    elif ships[i][j] == 9:
-        masiv_ship[4] = masiv_ship[4] + 1
-        print("ship 9:", masiv_ship[4])
-    elif ships[i][j] == 10:
-        masiv_ship[5] = masiv_ship[5] + 1
-        print("ship 10:", masiv_ship[5])
->>>>>>> 51e136b8a16e8faddbfa0f620d659741dcbf1bb9
     return masiv_ship
 
 
