@@ -1,6 +1,7 @@
+import re
+
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
-import re
 
 
 class InField(BoundFilter):

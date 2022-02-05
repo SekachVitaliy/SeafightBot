@@ -2,8 +2,8 @@ from aiogram import types
 
 from data.config import ADMINS
 from filters import IsPrivate
+from loader import db, dp
 from utils.misc import rate_limit
-from loader import dp, db
 
 
 @rate_limit(limit=1)

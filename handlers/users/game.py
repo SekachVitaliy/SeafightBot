@@ -1,13 +1,15 @@
 import logging
 
 from aiogram import types
-from filters import IsPrivate, InField
-from keyboards.inline.start_keyboard import inline_start_keyboard
+
+from filters import InField, IsPrivate
 from keyboards.default.default_field_keyboard import get_default_keyboard
-from loader import dp, db
-from utils.misc import rate_limit
-from .start import change_image
+from keyboards.inline.start_keyboard import inline_start_keyboard
+from loader import db, dp
 from states.game import Game
+from utils.misc import rate_limit
+
+from .start import change_image
 
 
 @rate_limit(limit=1)

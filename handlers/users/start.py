@@ -1,24 +1,23 @@
-import logging
-from aiogram import types
-from aiogram.types import CallbackQuery
-from aiogram.dispatcher.filters.builtin import CommandStart
-
-from filters.private_chat import IsPrivate
-from keyboards.inline.start_keyboard import inline_start_keyboard
-from keyboards.inline.paid_keyboard import inline_paid_keyboard
-from keyboards.default.default_field_keyboard import get_default_keyboard
-from states import Game
-from utils.misc import rate_limit
-from asyncpg.exceptions import UniqueViolationError
-from data.config import ADMINS
-
-import random
-from PIL import Image, ImageDraw
-from aiogram.types import InputFile
-
-from loader import dp, db
 import base64
 import hashlib
+import logging
+import random
+
+from aiogram import types
+from aiogram.dispatcher.filters.builtin import CommandStart
+from aiogram.types import CallbackQuery, InputFile
+from asyncpg.exceptions import UniqueViolationError
+from PIL import Image, ImageDraw
+
+from data.config import ADMINS
+from filters.private_chat import IsPrivate
+from keyboards.default.default_field_keyboard import get_default_keyboard
+from keyboards.inline.paid_keyboard import inline_paid_keyboard
+from keyboards.inline.start_keyboard import inline_start_keyboard
+from loader import db, dp
+from states import Game
+from utils.misc import rate_limit
+
 
 @rate_limit(limit=1)
 @dp.message_handler(CommandStart(deep_link="reklama"))

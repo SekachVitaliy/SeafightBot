@@ -2,9 +2,9 @@ from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandHelp
 
 from filters import IsPrivate
+from loader import dp
 from states import Game
 from utils.misc import rate_limit
-from loader import dp
 
 
 @rate_limit(limit=1)
