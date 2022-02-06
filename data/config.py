@@ -1,12 +1,12 @@
 from environs import Env
 
-# Теперь используем вместо библиотеки python-dotenv библиотеку environs
+
 env = Env()
 env.read_env()
 
-BOT_TOKEN = env.str("BOT_TOKEN")  # Забираем значение типа str
-ADMINS = env.list("ADMINS")  # Тут у нас будет список из админов
-IP = env.str("ip")  # Тоже str, но для айпи адреса хоста
+BOT_TOKEN = env.str("BOT_TOKEN")
+ADMINS = env.list("ADMINS")
+IP = env.str("ip")
 
 DB_USER = env.str("DB_USER")
 DB_PASS = env.str("DB_PASS")
@@ -14,6 +14,9 @@ DB_NAME = env.str("DB_NAME")
 DB_HOST = env.str("DB_HOST")
 
 
-Redis_HOST = env.str("Redis_HOST")
-Redis_PORT = env.str("Redis_PORT")
+REDIS_HOST = env.str("REDIS_HOST")
+REDIS_PORT = env.str("REDIS_PORT")
+
+
+LIQPAY_TOKEN = env.str("LIQPAY_TOKEN")
 

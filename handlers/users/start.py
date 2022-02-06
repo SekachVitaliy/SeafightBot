@@ -9,12 +9,12 @@ from aiogram.types import CallbackQuery, InputFile
 from asyncpg.exceptions import UniqueViolationError
 from PIL import Image, ImageDraw
 
-from data.config import ADMINS
+from data.config import ADMINS, LIQPAY_TOKEN
 from filters.private_chat import IsPrivate
 from keyboards.default.default_field_keyboard import get_default_keyboard
 from keyboards.inline.paid_keyboard import inline_paid_keyboard
 from keyboards.inline.start_keyboard import inline_start_keyboard
-from loader import db, dp
+from loader import db, dp, bot
 from states import Game
 from utils.misc import rate_limit
 
@@ -138,8 +138,22 @@ async def back_from_paid(call: CallbackQuery):
     await call.answer(cache_time=60)
     # удаляем клавиатуру
     await call.message.edit_reply_markup(None)
-    text = f"Депозит скоро будет работать!\nПока можешь сыграть "
-    await call.message.answer(text, reply_markup=inline_start_keyboard)
+    # text = f"Депозит скоро будет работать!\nПока можешь сыграть "
+    # await call.message.answer(text, reply_markup=inline_start_keyboard)
+    await bot.send_invoice(chat_id=call.from_user.id, title="Пополнение", description="Пополнение счета",
+                           payload="payload", provider_token=LIQPAY_TOKEN, currency='UAH',
+                           prices=[{"label": "UAH", "amount": 1000}])
+
+
+@dp.message_handler(content_types=types.ContentTypes.SUCCESSFUL_PAYMENT)
+async def process_pay(message: types.Message):
+    if message.successful_payment.invoice_payload == "payload":
+        await message.answer('Оплатил')
+
+
+@dp.pre_checkout_query_handler()
+async def pre_checkout_query_handler(pre_checkout_query: types.PreCheckoutQuery):
+    await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 
 @rate_limit(limit=1)
