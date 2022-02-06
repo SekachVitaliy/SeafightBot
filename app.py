@@ -21,7 +21,6 @@ async def on_startup(dispatcher):
         except ConnectionRefusedError:
             logging.info('database connection refused, retrying in 5 seconds...')
             time.sleep(5)
-    await db.drop_table_users()
     logging.info("Создаем таблицу пользователей")
     while True:
         try:

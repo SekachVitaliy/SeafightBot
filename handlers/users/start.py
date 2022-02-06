@@ -44,6 +44,7 @@ async def bot_start_deeplink(message: types.Message):
            f"Есть бесплатная и платная версии, платная версия стоит 10," \
            f"\nкогда выигрываешь получишь 20)" \
            f"\nНо у тебя есть ограниченое количество ходов - 40 \nДавай сыграем ?) "
+    await Game.not_started.set()
     await message.answer(text, reply_markup=inline_start_keyboard)
 
 
@@ -69,6 +70,7 @@ async def bot_start(message: types.Message):
     text = f"Привет, {message.from_user.full_name}!\nЕсть бесплатная и платная версии, платная версия стоит 10," \
            f"\nкогда выигрываешь получишь 20)" \
            f"\nНо у тебя есть ограниченое количество ходов - 40 \nДавай сыграем ?) "
+    await Game.not_started.set()
     await message.answer(text, reply_markup=inline_start_keyboard)
 
 

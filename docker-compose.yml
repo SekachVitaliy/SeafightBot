@@ -5,14 +5,10 @@ services:
     container_name: database
     image: postgres:12
     environment:
-      POSTGRES_DB: seafight_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: qwerty0207
+      - .env
     restart: always
     ports:
       - 5432:5432
-    volumes:
-      - ./postgres:/var/lib/postqresql/data
 
   redis:
     container_name: redisstorage
@@ -25,7 +21,7 @@ services:
     command: python app.py
     restart: always
     env_file:
-      - ".env"
+      - .env
     depends_on:
       - db
       - redis
