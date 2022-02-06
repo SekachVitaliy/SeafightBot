@@ -29,4 +29,5 @@ async def bot_start(message: types.Message, state: FSMContext):
         Хендлер куда попадает команда  stop '/stop'
     """
     await Game.not_started.set()
-    await message.answer("Игра остановлена, сыграем еще ?", reply_markup=inline_start_keyboard)
+    await message.answer("Игра остановлена!", reply_markup=types.ReplyKeyboardRemove())
+    await message.answer("Может сыграем еще разок?", reply_markup=inline_start_keyboard)
