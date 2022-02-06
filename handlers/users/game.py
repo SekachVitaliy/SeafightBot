@@ -13,7 +13,7 @@ from .start import change_image
 
 
 @rate_limit(limit=1)
-@dp.message_handler(IsPrivate(), InField())
+@dp.message_handler(IsPrivate(), InField(), state=Game.not_started)
 async def parsing_the_keyboard(message: types.Message):
     """
     Хендлер срабатвает по кнопке с клавиатуры. Фильтр InField пропускает только кнопки с клавиатуры, вне игры.
@@ -36,7 +36,7 @@ async def parsing_the_keyboard(message: types.Message):
     await message.answer("Ты сюда уже стрелял, попробуй в другое место)", reply_markup=get_default_keyboard(shots))
 
 
-@rate_limit(limit=1)
+@rate_limit(limit=0.2)
 @dp.message_handler(IsPrivate(), InField(), state=Game.game)
 async def parsing_the_keyboard(message: types.Message):
     """
