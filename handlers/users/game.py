@@ -12,7 +12,7 @@ from utils.misc import rate_limit
 from .start import change_image
 
 
-@rate_limit(limit=1)
+@rate_limit(limit=0.5)
 @dp.message_handler(IsPrivate(), InField(), state=Game.not_started)
 async def parsing_the_keyboard(message: types.Message):
     """
@@ -22,21 +22,21 @@ async def parsing_the_keyboard(message: types.Message):
     await message.answer("У тебя нет активной игры!\nДавай сыграем ?)", reply_markup=inline_start_keyboard)
 
 
-@rate_limit(limit=1)
+@rate_limit(limit=0.5)
 @dp.message_handler(IsPrivate(), text='🔴', state=Game.game)
 async def parsing_the_keyboard(message: types.Message):
     shots = await db.get_shots_arr(message.chat.id)
     await message.answer("Ты сюда уже стрелял, попробуй в другое место)", reply_markup=get_default_keyboard(shots))
 
 
-@rate_limit(limit=1)
+@rate_limit(limit=0.5)
 @dp.message_handler(IsPrivate(), text='❌', state=Game.game)
 async def parsing_the_keyboard(message: types.Message):
     shots = await db.get_shots_arr(message.chat.id)
     await message.answer("Ты сюда уже стрелял, попробуй в другое место)", reply_markup=get_default_keyboard(shots))
 
 
-@rate_limit(limit=0.2)
+@rate_limit(limit=0.3)
 @dp.message_handler(IsPrivate(), InField(), state=Game.game)
 async def parsing_the_keyboard(message: types.Message):
     """
@@ -68,19 +68,19 @@ async def parsing_the_keyboard(message: types.Message):
         summa += shots[i].count(0)
     if summa == 20:
         await message.answer_photo(types.InputFile(f'{message.chat.id}.png'))
-        await message.answer("Ты победил)) Прими мои поздравления!!!!")
+        await message.answer("Ты победил)) Прими мои поздравления!!!!", reply_markup=types.ReplyKeyboardRemove())
         logging.info(f'{message.from_user.username} с id:{message.from_user.id}  победил в игре!')
         await Game.not_started.set()
         await message.answer("Давай сыграем еще разок ?)", reply_markup=inline_start_keyboard)
     elif click == 0:
         await message.answer_photo(types.InputFile(f'{message.chat.id}.png'))
-        await message.answer("Ты проиграл, закончились ходы((")
+        await message.answer("Ты проиграл, закончились ходы((", reply_markup=types.ReplyKeyboardRemove())
         logging.info(f'{message.from_user.username} с id:{message.from_user.id}  проиграл в игре!')
         await Game.not_started.set()
         await message.answer("Давай сыграем еще разок ?)", reply_markup=inline_start_keyboard)
     elif click < 0:
         await message.answer_photo(types.InputFile(f'{message.chat.id}.png'))
-        await message.answer("У тебя больше нет ходов!")
+        await message.answer("У тебя больше нет ходов!", reply_markup=types.ReplyKeyboardRemove())
         await message.answer("Сыграем еще раз ?)", reply_markup=inline_start_keyboard)
     else:
         text = f"Осталось ходов: {click}! "
