@@ -2,4 +2,6 @@ aiogram~=2.12
 environs~=8.0.0
 Pillow~=9.0.0
 asyncpg~=0.23.0
-aioredis
+aioredis=2.0.1
+django=4.0.4
+psycopg2=2.9.3
